@@ -9,107 +9,61 @@ var map = new mapboxgl.Map({
 });
 
 // The function that will be called when the user clicks on the map.  The feature under the mouse is passed in.
-var popupFn;
+var popupFn; 
 
-	function mlabPopupFn(props) {
-		function rate(key) {
-			if (key in props) {
-				return `${props[key].toFixed(2)} Mbps`;
-			} else {
-				return '[No results]';
-			}
+function fccPopupFn(props) {
+	function rate(key) {
+		if (key in props) {
+			return `${props[key].toFixed(2)} Mbps`;
+		} else {
+			return '[No results]';
 		}
-		const rows = [
-			["Dec 2014", "ml_download_Mbps_dec_2014", "ml_upload_Mbps_dec_2014"],
-			["Jun 2015", "ml_download_Mbps_jun_2015", "ml_upload_Mbps_jun_2015"],
-			["Dec 2015", "ml_download_Mbps_dec_2015", "ml_upload_Mbps_dec_2015"],
-			["Jun 2016", "ml_download_Mbps_jun_2016", "ml_upload_Mbps_jun_2016"],
-			["Dec 2016", "ml_download_Mbps_dec_2016", "ml_upload_Mbps_dec_2016"],
-			["Jun 2017", "ml_download_Mbps_jun_2017", "ml_upload_Mbps_jun_2017"],
-			["Dec 2017", "ml_download_Mbps_dec_2017", "ml_upload_Mbps_dec_2017"],
-			["Jun 2018", "ml_download_Mbps_jun_2018", "ml_upload_Mbps_jun_2018"],
-			["Dec 2018", "ml_download_Mbps_dec_2018", "ml_upload_Mbps_dec_2018"],
-		];
-		const formatRow = ([time, dl_key, ul_key]) =>
-			`<div class="report-date">${time}</div><div class="report-value">${rate(dl_key)}</div>` +
-			`<div class="report-value">${rate(ul_key)}</div>`;
-
-		var measureGroup = document.getElementById('measurement');
-		var dataset = measureGroup.options[measureGroup.selectedIndex].parentNode.id;
-
-		return ('<h2>' + (props['county_name'] || props['tract_name'] || props['name']) + '</h2>' +
-			'<em>Source:' + dataset + '</em>' +
-			'<div class="report">' +
-			'<div></div><div class="report-header">↓</div><div class="report-header">↑</div>' +
-			rows.map(formatRow).join('\n') +
-			'</div>'
-		);
 	}
+	const rows = [
+		["Jun 2019", "fcc_advertised_down_jun_2019", "fcc_advertised_up_jun_2019"]
+	];
 
-	function fccPopupFn(props) {
-		function rate(key) {
-			if (key in props) {
-				return `${props[key].toFixed(2)} Mbps`;
-			} else {
-				return '[No results]';
-			}
+	const formatRow = ([time, dl_key, ul_key]) =>
+		`<div class="report-date">${time}</div><div class="report-value">${rate(dl_key)}</div>` +
+		`<div class="report-value">${rate(ul_key)}</div>`;
+
+	var measureGroup = document.getElementById('measurement');
+	var dataset = measureGroup.options[measureGroup.selectedIndex].parentNode.id;
+
+	return ('<h2>' + (props['county_name'] || props['tract_name'] || props['name'] || props['NAME']) + '</h2>' +
+		'<em>Source:' + dataset + '</em>' +
+		'<div class="report">' +
+		'<div></div><div class="report-header">↓</div><div class="report-header">↑</div>' +
+		rows.map(formatRow).join('\n') +
+		'</div>'
+	);
+}
+
+function diffPopupFn(props){
+	function rate(key1,key2) {
+		if (key1 in props && key2 in props) {
+			let diff = props[key1]-props[key2];
+			return `${diff.toFixed(2)} Mbps`;
+		} else {
+			return '[No results]';
 		}
-		const rows = [
-			["Dec 2014", "fcc_advertised_down_dec_2014", "fcc_advertised_up_dec_2014"],
-			["Jun 2015", "fcc_advertised_down_jun_2015", "fcc_advertised_up_jun_2015"],
-			["Dec 2015", "fcc_advertised_down_dec_2015", "fcc_advertised_up_dec_2015"],
-			["Jun 2016", "fcc_advertised_down_jun_2016", "fcc_advertised_up_jun_2016"],
-			["Dec 2016", "fcc_advertised_down_dec_2016", "fcc_advertised_up_dec_2016"],
-			["Jun 2017", "fcc_advertised_down_jun_2017", "fcc_advertised_up_jun_2017"],
-		];
-		const formatRow = ([time, dl_key, ul_key]) =>
-			`<div class="report-date">${time}</div><div class="report-value">${rate(dl_key)}</div>` +
-			`<div class="report-value">${rate(ul_key)}</div>`;
-
-		var measureGroup = document.getElementById('measurement');
-		var dataset = measureGroup.options[measureGroup.selectedIndex].parentNode.id;
-
-		return ('<h2>' + (props['county_name'] || props['tract_name'] || props['name'] || props['NAME']) + '</h2>' +
-			'<em>Source:' + dataset + '</em>' +
-			'<div class="report">' +
-			'<div></div><div class="report-header">↓</div><div class="report-header">↑</div>' +
-			rows.map(formatRow).join('\n') +
-			'</div>'
-		);
 	}
+	const rows = [["Jun 2019", "fcc_advertised_down_jun_2019", "ml_download_Mbps_jun_2019", "fcc_advertised_up_jun_2019", "ml_upload_Mbps_jun_2019"]];
+	const formatRow = ([time, dl_key_fcc, dl_key_mlab, ul_key_fcc, ul_key_mlab]) =>
+		`<div class="report-date">${time}</div><div class="report-value">${rate(dl_key_fcc,dl_key_mlab)}</div>` +
+		`<div class="report-value">${rate(ul_key_fcc,ul_key_mlab)}</div>`;
 
-	function diffPopupFn(props){
-		function rate(key1,key2) {
-			if (key1 in props && key2 in props) {
-				let diff = props[key1]-props[key2];
-				return `${diff.toFixed(2)} Mbps`;
-			} else {
-				return '[No results]';
-			}
-		}
-		const rows = [
-			["Dec 2014", "fcc_advertised_down_dec_2014", "ml_download_Mbps_dec_2014", "fcc_advertised_up_dec_2014", "ml_upload_Mbps_dec_2014"],
-			["Jun 2015", "fcc_advertised_down_jun_2015", "ml_download_Mbps_jun_2015", "fcc_advertised_up_jun_2015", "ml_upload_Mbps_jun_2015"],
-			["Dec 2015", "fcc_advertised_down_dec_2015", "ml_download_Mbps_dec_2015", "fcc_advertised_up_dec_2015", "ml_upload_Mbps_dec_2015"],
-			["Jun 2016", "fcc_advertised_down_jun_2016", "ml_download_Mbps_jun_2016", "fcc_advertised_up_jun_2016", "ml_upload_Mbps_jun_2016"],
-			["Dec 2016", "fcc_advertised_down_dec_2016", "ml_download_Mbps_dec_2016", "fcc_advertised_up_dec_2016", "ml_upload_Mbps_dec_2016"],
-			["Jun 2017", "fcc_advertised_down_jun_2017", "ml_download_Mbps_jun_2017", "fcc_advertised_up_jun_2017", "ml_upload_Mbps_jun_2017"]
-		];
-		const formatRow = ([time, dl_key_fcc, dl_key_mlab, ul_key_fcc, ul_key_mlab]) =>
-			`<div class="report-date">${time}</div><div class="report-value">${rate(dl_key_fcc,dl_key_mlab)}</div>` +
-			`<div class="report-value">${rate(ul_key_fcc,ul_key_mlab)}</div>`;
+	var measureGroup = document.getElementById('measurement');
+	var dataset = measureGroup.options[measureGroup.selectedIndex].parentNode.id;
 
-		var measureGroup = document.getElementById('measurement');
-		var dataset = measureGroup.options[measureGroup.selectedIndex].parentNode.id;
-
-		return ('<h2>' + (props['county_name'] || props['tract_name'] || props['name'] || props['NAME']) + '</h2>' +
-			'<em>Source:' + dataset + '</em>' +
-			'<div class="report">' +
-			'<div></div><div class="report-header">Download Difference</div><div class="report-header">Upload Difference</div>' +
-			rows.map(formatRow).join('\n') +
-			'</div>'
-		);
-	}
+	return ('<h2>' + (props['county_name'] || props['tract_name'] || props['name'] || props['NAME']) + '</h2>' +
+		'<em>Source:' + dataset + '</em>' +
+		'<div class="report">' +
+		'<div></div><div class="report-header">Download Difference</div><div class="report-header">Upload Difference</div>' +
+		rows.map(formatRow).join('\n') +
+		'</div>'
+	);
+}
 
 	function mkRamp({
 		displayName, internalName, popupFn, mapboxGlStyleFn, stops, maxTime
@@ -132,7 +86,7 @@ var popupFn;
 			['jun_2017', 'Jun 2017'],
 			['dec_2017', 'Dec 2017'],
 			['jun_2018', 'Jun 2018'],
-			['dec_2018', 'Dec 2018']],
+			['jun_2019', 'Jun 2019']],
 		state_centers: // jump-to-state info, an array of [displayName, [lon, lat, zoom]]
 			[
 				["All States", [38.526600, -96.726486, 3]],
@@ -190,11 +144,7 @@ var popupFn;
 				["Wyoming", [42.755966, -107.302490], 5]],
 		geo_units: // Array of dynamic layer info, [displayName, layerId, layerSrc, internalLayerName]
 			[
-				['County', 'county', 'mapbox://newamerica.usbb_county', 'usbb_county'],
-				['Zip Code', 'zcta', 'mapbox://newamerica.usbb_zcta', 'usbb_zcta'],
-			    ['US Census Tracts', 'census_tracts', 'mapbox://newamerica.usbb_tract', 'usbb_tract'],
-				['State Senate Districts', 'state_senate', 'mapbox://newamerica.usbb_state_senate', 'usbb_state_senate'],
-				['State House Districts', 'state_house', 'mapbox://newamerica.usbb_state_house', 'usbb_state_house'],
+			    ['US Census Blocks', 'census_bloc', 'mapbox://newamerica.usbb_tract', 'usbb_tract']
 			],
 		ramps: // Array of display styling info, {displayName, internalName, mapboxGlStyleFn, stops, popupFn}
 			[mkRamp({
@@ -235,31 +185,6 @@ var popupFn;
 					25, '#307f8a',
 					50, '#12666a',
 					100, '#004d47']
-			}), mkRamp({
-				displayName: 'Download Comparison (FCC - MLab)',
-				internalName: 'mlab_fcc_dl_comp',
-				popupFn: diffPopupFn,
-				mapboxGlStyleFn(timePeriod, stops) {
-					return ['case',
-					    ['all', ['has', `fcc_advertised_down_${timePeriod}`], ['has', `ml_download_Mbps_${timePeriod}`]],
-					    ['interpolate',['linear'],
-						['-', ['get', `fcc_advertised_down_${timePeriod}`], ['get', `ml_download_Mbps_${timePeriod}`]],
-						...stops],'#808080'];
-				},
-				maxTime: 'dec_2017',
-				stops: [
-					-Infinity, '#690408',
-					-25, '#96352d',
-					-15, '#be6256',
-					-10, '#e09287',
-					-5, '#f7c7bf',
-					-1, '#ffffff',
-					1, '#d2cdf2',
-					5, '#a39fdc',
-					10, '#7374be',
-					15, '#434d9b',
-					25, '#002a74'
-				]
 			})
 			]
 	};
@@ -285,10 +210,10 @@ function configureMap() {
 
 	const ramp = config.ramps.find((ramp) => ramp.internalName == measure);
 
-  // Apply time constraint and clamp value.
-  const maxTimeIndex = config.time_periods.findIndex((period) => period[0] == ramp.maxTime);
+    // Apply time constraint and clamp value.
+    const maxTimeIndex = config.time_periods.findIndex((period) => period[0] == ramp.maxTime);
 	console.log(ramp.maxTime, maxTimeIndex, config.time_periods.length);
-  timeSlider.max = maxTimeIndex == -1 ? config.time_periods.length - 1 : maxTimeIndex;
+    timeSlider.max = maxTimeIndex == -1 ? config.time_periods.length - 1 : maxTimeIndex;
 	timeSlider.value = Math.min(timeSlider.max, timeSlider.value);
 
 	const timePeriod = config.time_periods[timeSlider.value];
@@ -367,7 +292,7 @@ function configureMap() {
 				type: "fill",
 				source: { url, type: "vector" },
 				"source-layer": sourceLayer,
-				layout: { visibility: 'none' },
+				"layout": { visibility: 'visible' },
 				paint: {
 					'fill-opacity': 0.7
 				}
@@ -389,7 +314,7 @@ function configureMap() {
 			"type": "line",
 			"source": {
 				type: 'vector',
-				url: 'mapbox://newamerica.cjvopv39u05jt2wmna9mg5wz4-7j8om'
+				url: 'https://maptiles.measurementlab.net/us/aiannh/ndt/month/%7Bz'
 			},
 			"layout": {
 				'visibility': 'visible'
